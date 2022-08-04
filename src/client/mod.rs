@@ -392,7 +392,7 @@ fn test_mmv_header() {
     use rand::{thread_rng, Rng};
 
     let cluster_id = thread_rng().gen::<u32>();
-    let flags = PROCESS | SENTINEL;
+    let flags = MMVFlags::PROCESS | MMVFlags::SENTINEL;
     let client = Client::new_custom("mmv_header_test", flags, cluster_id).unwrap();
     
     client.export(&mut[]).unwrap();

@@ -1339,8 +1339,8 @@ fn test_random_numeric_metrics() {
     { // mmv_writers needs to go out of scope before we can mutate
       // the metrics after exporting. The type annotation is needed
       // because type inference fails.
-        let mut mmv_writers: Vec<&mut MMVWriter> = metrics.iter_mut()
-            .map(|m| m as &mut MMVWriter)
+        let mut mmv_writers: Vec<&mut dyn MMVWriter> = metrics.iter_mut()
+            .map(|m| m as &mut dyn  MMVWriter)
             .collect();
         client.export(&mut mmv_writers).unwrap();
     }
@@ -1414,7 +1414,7 @@ fn test_simple_metrics() {
 
     let color_slice = unsafe { color.mmap_view.as_slice() };
     let cstr = unsafe {
-        CStr::from_ptr(color_slice.as_ptr() as *const i8)
+        CStr::from_ptr(color_slice.as_ptr())
     };
     assert_eq!(new_color, cstr.to_str().unwrap());
 
