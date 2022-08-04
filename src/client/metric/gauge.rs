@@ -23,8 +23,8 @@ impl Gauge {
         )?;
 
         Ok(Gauge {
-            metric: metric,
-            init_val: init_val
+            metric,
+            init_val
         })
     }
 

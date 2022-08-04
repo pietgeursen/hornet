@@ -88,9 +88,9 @@ impl Histogram {
         histogram.auto(false);
 
         Ok(Histogram {
-            im: im,
-            indom: indom,
-            histogram: histogram
+            im,
+            indom,
+            histogram
         })
     }
 

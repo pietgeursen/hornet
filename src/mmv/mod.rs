@@ -228,7 +228,7 @@ impl Header {
         } 
 
         let toc_count = r.read_u32::<Endian>()?;
-        if toc_count > 5 || toc_count < 2 {
+        if !(2..=5).contains(&toc_count) {
             return_mmvdumperror!("Invalid TOC count", toc_count);
         }
 
@@ -241,14 +241,14 @@ impl Header {
         }
 
         Ok(Header {
-            magic: magic,
+            magic,
             version: mmv_ver,
-            gen1: gen1,
-            gen2: gen2,
-            toc_count: toc_count,
-            flags: flags,
-            pid: pid,
-            cluster_id: cluster_id
+            gen1,
+            gen2,
+            toc_count,
+            flags,
+            pid,
+            cluster_id
         })
     }
 }
@@ -290,9 +290,9 @@ impl TocBlk {
         Ok(TocBlk {
             _toc_index: 0,
             _mmv_offset: 0,
-            sec: sec,
-            entries: entries,
-            sec_offset: sec_offset
+            sec,
+            entries,
+            sec_offset
         })
     }
 }
@@ -364,19 +364,19 @@ impl MetricBlk {
         let long_help_offset = r.read_u64::<Endian>()?;
         
         Ok(MetricBlk {
-            name: name,
+            name,
             item: {
                 if is_valid_item(item) { Some(item) }
                 else { None }
             },
-            typ: typ,
-            sem: sem,
-            unit: unit,
+            typ,
+            sem,
+            unit,
             indom: {
                 if is_valid_indom(indom) { Some(indom) }
                 else { None }
             },
-            pad: pad,
+            pad,
             short_help_offset: {
                 if is_valid_blk_offset(short_help_offset) { Some(short_help_offset) }
                 else { None }
@@ -415,7 +415,7 @@ impl ValueBlk {
         let instance_offset = r.read_u64::<Endian>()?;
 
         Ok(ValueBlk {
-            value: value,
+            value,
             string_offset: {
                 if is_valid_blk_offset(string_offset) { Some(string_offset) }
                 else { None }
@@ -465,7 +465,7 @@ impl IndomBlk {
                 if is_valid_indom(indom) { Some(indom) }
                 else { None }
             },
-            instances: instances,
+            instances,
             instances_offset: {
                 if is_valid_blk_offset(instances_offset) { Some(instances_offset) }
                 else { None }
@@ -531,9 +531,9 @@ impl InstanceBlk {
                 if is_valid_blk_offset(indom_offset) { Some(indom_offset) }
                 else { None }
             },
-            pad: pad,
-            internal_id: internal_id,
-            external_id: external_id
+            pad,
+            internal_id,
+            external_id
         })
     }
 }
@@ -560,7 +560,7 @@ impl StringBlk {
         let string = cstr.to_str()?.to_owned();
 
         Ok(StringBlk {
-            string: string
+            string
         })
     }
 }
@@ -648,14 +648,14 @@ pub fn dump(mmv_path: &Path) -> Result<MMV, MMVDumpError> {
             header: hdr,
             metric_toc: metric_toc.unwrap(),
             value_toc: value_toc.unwrap(),
-            string_toc: string_toc,
-            indom_toc: indom_toc,
-            instance_toc: instance_toc,
-            indom_blks: indom_blks,
-            instance_blks: instance_blks,
-            metric_blks: metric_blks,
-            value_blks: value_blks,
-            string_blks: string_blks
+            string_toc,
+            indom_toc,
+            instance_toc,
+            indom_blks,
+            instance_blks,
+            metric_blks,
+            value_blks,
+            string_blks
         }
     )
 }

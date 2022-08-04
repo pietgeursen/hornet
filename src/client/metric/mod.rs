@@ -361,7 +361,7 @@ impl Unit {
     /// Returns a unit constructed from a raw PMAPI representation
     pub fn from_raw(pmapi_repr: u32) -> Self {
         Unit {
-            pmapi_repr: pmapi_repr
+            pmapi_repr
         }
     }
 
@@ -564,8 +564,8 @@ impl<T: MetricType + Clone> Metric<T> {
 
         Ok(Metric {
             name: name.to_owned(),
-            item: item,
-            sem: sem,
+            item,
+            sem,
             indom: 0,
             unit: unit.pmapi_repr,
             shorthelp: shorthelp.to_owned(),
@@ -634,7 +634,7 @@ impl Indom {
         }
 
         Ok(Indom {
-            instances: instances.into_iter().map(|inst| inst.to_string()).collect(),
+            instances: instances.iter().map(|inst| inst.to_string()).collect(),
             id: (hasher.finish() as u32) & ((1 << INDOM_BIT_LEN) - 1),
             shorthelp: shorthelp.to_owned(),
             longhelp: longhelp.to_owned()
@@ -711,14 +711,14 @@ impl<T: MetricType + Clone> InstanceMetric<T> {
         }
 
         let mut metric = Metric::new(
-            name, init_val.clone(), sem, unit, shorthelp, longhelp
+            name, init_val, sem, unit, shorthelp, longhelp
         )?;
         metric.indom = indom.id;
         
         Ok(InstanceMetric {
             indom: indom.clone(),
-            vals: vals,
-            metric: metric
+            vals,
+            metric
         })
     }
 
@@ -893,10 +893,10 @@ impl<T: MetricType> MMVWriter for InstanceMetric<T> {
         cache_and_register_string(ws, &self.indom.shorthelp);
         cache_and_register_string(ws, &self.indom.longhelp);
 
-        if !ws.indom_cache.contains_key(&self.indom.id) {
+        if let std::collections::hash_map::Entry::Vacant(e) = ws.indom_cache.entry(self.indom.id) {
             ws.n_indoms += 1;
             ws.n_instances += self.indom.instances.len() as u64;
-            ws.indom_cache.insert(self.indom.id, None);
+            e.insert(None);
 
             match mmv_ver {
                 Version::V1 => {},
@@ -962,7 +962,7 @@ fn write_indom_and_instances<'a>(ws: &mut MMVWriterState, c: &mut Cursor<&mut [u
         // zero pad
         c.write_u32::<Endian>(0)?;
         // instance id
-        c.write_u32::<Endian>(Indom::instance_id(&instance))?;
+        c.write_u32::<Endian>(Indom::instance_id(instance))?;
 
         // instance
         match mmv_ver {
@@ -1049,7 +1049,7 @@ fn write_value_block<T: MetricType>(ws: &mut MMVWriterState,
 }
 
 fn cache_and_register_string(ws: &mut MMVWriterState, string: &str) {
-    if string.len() > 0 && !ws.non_value_string_cache.contains_key(string) {
+    if !string.is_empty() && !ws.non_value_string_cache.contains_key(string) {
         ws.non_value_string_cache.insert(string.to_owned(), None);
         ws.n_strings += 1;
     }
@@ -1064,7 +1064,7 @@ fn cache_and_register_string(ws: &mut MMVWriterState, string: &str) {
 fn write_mmv_string(ws: &mut MMVWriterState,
     c: &mut Cursor<&mut [u8]>, string: &str, is_value: bool) -> io::Result<u64> {
 
-    if string.len() == 0 {
+    if string.is_empty() {
         return Ok(0);
     }
 
@@ -1076,7 +1076,7 @@ fn write_mmv_string(ws: &mut MMVWriterState,
         
     // only cache if the string is not a value
     if !is_value {
-        if let Some(cached_offset) = ws.non_value_string_cache.get(string).clone() {
+        if let Some(cached_offset) = ws.non_value_string_cache.get(string) {
             if let &Some(off) = cached_offset {
                 return Ok(off);
             }

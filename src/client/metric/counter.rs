@@ -23,8 +23,8 @@ impl Counter {
         )?;
 
         Ok(Counter {
-            metric: metric,
-            init_val: init_val
+            metric,
+            init_val
         })
     }
 

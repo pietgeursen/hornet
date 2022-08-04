@@ -31,8 +31,8 @@ use super::{
 pub mod metric;
 use self::metric::{MMVWriter, MMVWriterState};
 
-static PCP_TMP_DIR_KEY: &'static str = "PCP_TMP_DIR";
-static MMV_DIR_SUFFIX: &'static str = "mmv";
+static PCP_TMP_DIR_KEY: &str = "PCP_TMP_DIR";
+static MMV_DIR_SUFFIX: &str = "mmv";
 
 #[cfg(unix)]
 fn get_process_id() -> i32 {
@@ -74,7 +74,7 @@ fn init_pcp_conf(pcp_root: &Path) -> io::Result<()> {
        if pcp_root/$PCP_CONF is not a file, can't be read, or parsing it
        fails, we *do* return the error */
     let pcp_conf = pcp_root
-        .join(env::var_os("PCP_CONF").unwrap_or(OsString::new()));
+        .join(env::var_os("PCP_CONF").unwrap_or_default());
     parse_pcp_conf(pcp_conf)
 }
 
@@ -213,9 +213,9 @@ impl Client {
         let cluster_id = cluster_id & ((1 << CLUSTER_ID_BIT_LEN) - 1);
 
         Ok(Client {
-            flags: flags,
-            cluster_id: cluster_id,
-            mmv_path: mmv_path
+            flags,
+            cluster_id,
+            mmv_path
         })
     }
     
@@ -223,7 +223,7 @@ impl Client {
     ///
     /// If an MMV file is already present at `mmv_path`, it's overwritten
     /// with the newer metrics.
-    pub fn export(&self, metrics: &mut [&mut MMVWriter]) -> io::Result<()> {
+    pub fn export(&self, metrics: &mut [&mut dyn MMVWriter]) -> io::Result<()> {
         let mut ws = MMVWriterState::new();
 
         let mut mmv_ver = Version::V1;
