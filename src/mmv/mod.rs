@@ -340,7 +340,7 @@ impl MetricBlk {
                 let mut name_bytes = [0; MMV1_NAME_MAX_LEN as usize];
                 r.read_exact(&mut name_bytes)?;
                 let cstr = unsafe {
-                    CStr::from_ptr(name_bytes.as_ptr() as *const i8)
+                    CStr::from_ptr(name_bytes.as_ptr())
                 };
                 VersionSpecificString::String(cstr.to_str()?.to_owned())
             },
@@ -516,7 +516,7 @@ impl InstanceBlk {
                 let mut external_id_bytes = [0; MMV1_NAME_MAX_LEN as usize];
                 r.read_exact(&mut external_id_bytes)?;
                 let cstr = unsafe {
-                    CStr::from_ptr(external_id_bytes.as_ptr() as *const i8)
+                    CStr::from_ptr(external_id_bytes.as_ptr())
                 };
                 VersionSpecificString::String(cstr.to_str()?.to_owned())
             },
@@ -555,7 +555,7 @@ impl StringBlk {
         let mut bytes = [0; STRING_BLOCK_LEN as usize];
         r.read_exact(&mut bytes)?;
         let cstr = unsafe {
-            CStr::from_ptr(bytes.as_ptr() as *const i8)
+            CStr::from_ptr(bytes.as_ptr())
         };
         let string = cstr.to_str()?.to_owned();
 
