@@ -2,7 +2,7 @@ use byteorder::WriteBytesExt;
 use memmap::{Mmap, Protection};
 use regex::bytes::Regex;
 use std::env;
-use std::ffi::{OsStr, OsString};
+use std::ffi::OsStr;
 use std::fmt;
 use std::fs;
 use std::fs::{File, OpenOptions};
@@ -36,7 +36,6 @@ static MMV_DIR_SUFFIX: &str = "mmv";
 
 #[cfg(unix)]
 fn get_process_id() -> i32 {
-    use nix;
     nix::unistd::getpid()
 }
 
@@ -161,12 +160,12 @@ impl fmt::Display for MMVFlags {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         let mut prev_flag = false;
 
-        if self.contains(NOPREFIX)  {
+        if self.contains(Self::NOPREFIX)  {
             write!(f, "no prefix")?;
             prev_flag = true;
         }
 
-        if self.contains(PROCESS)  {
+        if self.contains(Self::PROCESS)  {
             if prev_flag {
                 write!(f, ",")?;
             }
@@ -174,7 +173,7 @@ impl fmt::Display for MMVFlags {
             prev_flag = true;
         }
 
-        if self.contains(SENTINEL)  {
+        if self.contains(Self::SENTINEL)  {
             if prev_flag {
                 write!(f, ",")?;
             }
@@ -200,7 +199,7 @@ pub struct Client {
 impl Client {
     /// Creates a new client with `PROCESS` flag and `0` cluster ID
     pub fn new(name: &str) -> io::Result<Client> {
-        Client::new_custom(name, PROCESS, 0)
+        Client::new_custom(name, MMVFlags::PROCESS, 0)
     }
 
     /// Creates a new client with custom flags and cluster ID

@@ -3,6 +3,7 @@ extern crate hdrsample;
 extern crate memmap;
 extern crate regex;
 extern crate time;
+
 #[macro_use] extern crate bitflags;
 #[macro_use] extern crate lazy_static;
 #[cfg(test)] extern crate rand;
